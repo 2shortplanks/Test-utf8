@@ -39,28 +39,58 @@ Test::utf8 - handy utf8 tests
 
 =head1 SYNOPSIS
 
+  # check the string is good
   is_valid_string($string);   # check the string is valid
   is_sane_utf8($string);      # check not double encoded
-  is_flagged_utf8($string);   # has utf8 flag set
-  is_within_latin_1($string); # but only has latin_1 chars in it
+
+  # check the string has certain attributes
+  is_flagged_utf8($string1);   # has utf8 flag set
+  is_within_ascii($string2);   # only has ascii chars in it
+  isnt_within_ascii($string3); # has chars outside the ascii range
+  is_within_latin_1($string4); # only has latin-1 chars in it
+  isnt_within_ascii($string5); # has chars outside the latin-1 range
 
 =head1 DESCRIPTION
 
-This module is a collection of tests that's useful when dealing
-with utf8 strings in Perl.
+This module is a collection of tests useful for dealing with utf8 strings in
+Perl.
 
-=head2 Validity
+This module has two types of tests: The validity tests check if a string is
+valid and not corrupt, whereas the characteristics tests will check that string
+has a given set of characteristics.
 
-These two tests check if a string is valid, and if you've probably
-made a mistake with your string
+=head2 Validity Tests
 
 =over
 
 =item is_valid_string($string, $testname)
 
-This passes and returns true true if and only if the scalar isn't a
-invalid string; In short, it checks that the utf8 flag hasn't been set
-for a string that isn't a valid utf8 encoding.
+Checks if the string is "valid", i.e. this passes and returns true unless
+the internal utf8 flag hasn't been set on scalar that isn't made up of a valid
+utf-8 byte sequence.
+
+This should I<never> happen and, in theory, this test should always pass. Unless
+you (or a module you use) goes monkeying around inside a scalar using Encode's
+private functions or XS code you shouldn't ever end up in a situation where
+you've got a corrupt scalar.  But if you do, and you do, then this function
+should help you detect the problem.
+
+To be clear, here's an example of the error case this can detect:
+
+  my $mark = "Mark";
+  my $leon = "L\x{e9}on";
+  is_valid_string($mark);  # passes, not utf-8
+  is_valid_string($leon);  # passes, not utf-8
+
+  my $iloveny = "I \x{2665} NY";
+  is_valid_string($iloveny);      # passes, proper utf-8
+
+  my $acme = "L\x{c3}\x{a9}on";
+  Encode::_utf8_on($acme);      # (please don't do things like this)
+  is_valid_string($acme);       # passes, proper utf-8 byte sequence upgraded
+
+  Encode::_utf8_on($leon);      # (this is why you don't do things like this)
+  is_valid_string($leon);       # fails! the byte \x{e9} isn't valid utf-8
 
 =cut
 
@@ -152,9 +182,6 @@ you which is the case.
 # NOTE: This won't work if our locale is nonstandard will it?
 my $re_bit = join "|", map { Encode::encode("utf8",chr($_)) } (127..255);
 
-#binmode STDERR, ":utf8";
-#print STDERR $re_bit;
-
 sub is_sane_utf8($;$)
 {
   my $string = shift;
@@ -200,13 +227,13 @@ sub is_dodgy_utf8 { goto &is_sane_utf8 }
 
 =back
 
-=head2 Checking the Range of Characters in a String
+=head2 String Characteristic Tests
 
 These routines allow you to check the range of characters in a string.
 Note that these routines are blind to the actual encoding perl
 internally uses to store the characters, they just check if the
 string contains only characters that can be represented in the named
-encoding.
+encoding:
 
 =over
 
@@ -263,10 +290,8 @@ sub is_within_latin1 { goto &is_within_latin_1 }
 
 =back
 
-=head2 Simple utf8 Flag Tests
-
 Simply check if a scalar is or isn't flagged as utf8 by perl's
-internals.
+internals:
 
 =over
 
@@ -312,7 +337,7 @@ sub isn::t_flagged_utf8($;$)
 
 =head1 AUTHOR
 
-  Copyright Mark Fowler 2004.  All rights reserved.
+  Copyright Mark Fowler 2004, 2012.  All rights reserved.
 
   This program is free software; you can redistribute it
   and/or modify it under the same terms as Perl itself.
