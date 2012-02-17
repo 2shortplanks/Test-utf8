@@ -5,22 +5,23 @@ use 5.007003;
 use strict;
 use warnings;
 
+use base qw(Exporter);
+
 use Encode;
 use charnames ':full';
 
-use vars qw(@ISA @EXPORT $VERSION %allowed $valid_utf8_regexp);
-$VERSION = "0.02";
+our $VERSION = "1.00";
 
-require Exporter;
-@ISA = qw(Exporter);
-@EXPORT = qw(is_valid_string is_dodgy_utf8 is_sane_utf8
-	      is_within_ascii is_within_latin1 is_within_latin_1
-              is_flagged_utf8 isnt_flagged_utf8);
+our @EXPORT = qw(
+  is_valid_string is_dodgy_utf8 is_sane_utf8
+  is_within_ascii is_within_latin1 is_within_latin_1
+  is_flagged_utf8 isnt_flagged_utf8
+);
 
 # A Regexp string to match valid UTF8 bytes
 # this info comes from page 78 of "The Unicode Standard 4.0"
 # published by the Unicode Consortium
-$valid_utf8_regexp = <<'.' ;
+our $valid_utf8_regexp = <<'.' ;
         [\x{00}-\x{7f}]
       | [\x{c2}-\x{df}][\x{80}-\x{bf}]
       |         \x{e0} [\x{a0}-\x{bf}][\x{80}-\x{bf}]

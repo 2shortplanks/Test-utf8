@@ -1,3 +1,4 @@
+1.00 Refactor build system to use Module::Install
 
 0.02 Change is_dodgy_utf8 to is_sane_utf8 after feedback from
      London.pm.  New name was Richard Clamp's idea.
