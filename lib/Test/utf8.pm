@@ -21,7 +21,7 @@ our @EXPORT = qw(
 # A Regexp string to match valid UTF8 bytes
 # this info comes from page 78 of "The Unicode Standard 4.0"
 # published by the Unicode Consortium
-our $valid_utf8_regexp = <<'.' ;
+our $valid_utf8_regexp = <<'REGEX' ;
         [\x{00}-\x{7f}]
       | [\x{c2}-\x{df}][\x{80}-\x{bf}]
       |         \x{e0} [\x{a0}-\x{bf}][\x{80}-\x{bf}]
@@ -31,7 +31,7 @@ our $valid_utf8_regexp = <<'.' ;
       |         \x{f0} [\x{90}-\x{bf}][\x{80}-\x{bf}]
       | [\x{f1}-\x{f3}][\x{80}-\x{bf}][\x{80}-\x{bf}][\x{80}-\x{bf}]
       |         \x{f4} [\x{80}-\x{8f}][\x{80}-\x{bf}][\x{80}-\x{bf}]
-.
+REGEX
 
 =head1 NAME
 
@@ -71,13 +71,14 @@ sub is_valid_string($;$)
 
   # check we're a utf8 string - if not, we pass.
   unless (Encode::is_utf8($string))
-    { return pass($name) }
+    { return _pass($name) }
 
   # work out at what byte (if any) we have an invalid byte sequence
   # and return the correct test result
   my $pos = _invalid_sequence_at_byte($string);
-  ok(!defined($pos), $name)
-    or diag("malformed byte sequence starting at byte $pos");
+  if (_ok(!defined($pos), $name)) { return 1 }
+  _diag("malformed byte sequence starting at byte $pos");
+  return;
 }
 
 sub _invalid_sequence_at_byte($)
@@ -87,7 +88,7 @@ sub _invalid_sequence_at_byte($)
   # examine the bytes that make up the string (not the chars)
   # by turning off the utf8 flag (no, use bytes doens't
   # work, we're dealing with a regexp)
-  Encode::_utf8_off($string);
+  Encode::_utf8_off($string);  ## no critic (ProtectPrivateSubs)
 
   # work out the index of the first non matching byte
   my $result = $string =~ m/^($valid_utf8_regexp)*/ogx;
@@ -162,7 +163,7 @@ sub is_sane_utf8($;$)
   # regexp in scalar context with 'g', meaning this loop will run for
   # each match.  Should only have to run it once, but will redo if
   # the failing case turns out to be allowed in %allowed.
-  while ($string =~ /($re_bit)/o)
+  while ($string =~ /($re_bit)/ox)
   {
     # work out what the double encoded string was
     my $bytes = $1;
@@ -177,31 +178,25 @@ sub is_sane_utf8($;$)
     $char = charnames::viacode($ord);
 
     # print out diagnostic messages
-    fail($name);
-    diag(qq{Found dodgy chars "$codes" at char $index\n});
+    _fail($name);
+    _diag(qq{Found dodgy chars "$codes" at char $index\n});
     if (Encode::is_utf8($string))
-      { diag("Chars in utf8 string look like utf8 byte sequence.") }
+      { _diag("Chars in utf8 string look like utf8 byte sequence.") }
     else
-      { diag("String not flagged as utf8...was it meant to be?\n") }
-    diag("Probably originally a $char char - codepoint $ord (dec), $hex (hex)\n");
+      { _diag("String not flagged as utf8...was it meant to be?\n") }
+    _diag("Probably originally a $char char - codepoint $ord (dec),"
+         ." $hex (hex)\n");
 
     return 0;
   }
 
   # got this far, must have passed.
-  ok(1,$name);
+  _ok(1,$name);
   return 1;
 }
 
 # historic name of method; deprecated
-sub is_dodgy_utf8
-{
-  # report errors not here but further up the calling stack
-  local $Test::Builder::Level = $Test::Builder::Level + 1;
-
-  # call without prototype with all args
-  &is_sane_utf8(@_);
-}
+sub is_dodgy_utf8 { goto &is_sane_utf8 }
 
 =back
 
@@ -228,14 +223,14 @@ sub is_within_ascii($;$)
   my $name   = shift || "within ascii";
 
   # look for anything that isn't ascii or pass
-  $string =~ /([^\x{00}-\x{7f}])/ or return pass($name);
+  $string =~ /([^\x{00}-\x{7f}])/x or return _pass($name);
 
   # explain why we failed
   my $dec = ord($1);
   my $hex = sprintf '%02x', $dec;
 
-  fail($name);
-  diag("Char $+[0] not ASCII (it's $dec dec / $hex hex)");
+  _fail($name);
+  _diag("Char $+[0] not ASCII (it's $dec dec / $hex hex)");
 
   return 0;
 }
@@ -252,26 +247,19 @@ sub is_within_latin_1($;$)
   my $name   = shift || "within latin-1";
 
   # look for anything that isn't ascii or pass
-  $string =~ /([^\x{00}-\x{ff}])/ or return pass($name);
+  $string =~ /([^\x{00}-\x{ff}])/x or return _pass($name);
 
   # explain why we failed
   my $dec = ord($1);
   my $hex = sprintf '%x', $dec;
 
-  fail($name);
-  diag("Char $+[0] not Latin-1 (it's $dec dec / $hex hex)");
+  _fail($name);
+  _diag("Char $+[0] not Latin-1 (it's $dec dec / $hex hex)");
 
   return 0;
 }
 
-sub is_within_latin1
-{
-  # report errors not here but further up the calling stack
-  local $Test::Builder::Level = $Test::Builder::Level + 1;
-
-  # call without prototype with all args
-  &is_within_latin_1(@_);
-}
+sub is_within_latin1 { goto &is_within_latin_1 }
 
 =back
 
@@ -293,7 +281,7 @@ sub is_flagged_utf8
 {
   my $string = shift;
   my $name = shift || "flagged as utf8";
-  return ok(Encode::is_utf8($string),$name);
+  return _ok(Encode::is_utf8($string),$name);
 }
 
 =item isnt_flagged_utf8($string,$name)
@@ -310,14 +298,14 @@ sub isnt_flagged_utf8($;$)
 {
   my $string = shift;
   my $name   = shift || "not flagged as utf8";
-  return ok(!Encode::is_utf8($string), $name);
+  return _ok(!Encode::is_utf8($string), $name);
 }
 
 sub isn::t_flagged_utf8($;$)
 {
   my $string = shift;
   my $name   = shift || "not flagged as utf8";
-  return ok(!Encode::is_utf8($string), $name);
+  return _ok(!Encode::is_utf8($string), $name);
 }
 
 =back
@@ -346,29 +334,30 @@ entities.
 # shortcuts for Test::Builder.
 
 use Test::Builder;
-my $Tester = Test::Builder->new();
+my $tester = Test::Builder->new();
 
-sub ok
+sub _ok
 {
   local $Test::Builder::Level = $Test::Builder::Level + 1;
-  $Tester->ok(@_)
+  return $tester->ok(@_)
 }
-sub diag
+sub _diag
 {
   local $Test::Builder::Level = $Test::Builder::Level + 1;
-   $Tester->diag(@_)
-}
-
-sub fail
-{
-  local $Test::Builder::Level = $Test::Builder::Level + 1;
-  ok(0,@_)
+  $tester->diag(@_);
+  return;
 }
 
-sub pass
+sub _fail
 {
   local $Test::Builder::Level = $Test::Builder::Level + 1;
-  ok(1,@_)
+  return _ok(0,@_)
+}
+
+sub _pass
+{
+  local $Test::Builder::Level = $Test::Builder::Level + 1;
+  return _ok(1,@_)
 }
 
 
