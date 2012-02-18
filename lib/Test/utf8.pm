@@ -337,10 +337,14 @@ sub isn::t_flagged_utf8($;$)
 
 =head1 AUTHOR
 
-  Copyright Mark Fowler 2004, 2012.  All rights reserved.
+Written by Mark Fowler B<mark@twoshortplanks.com>
 
-  This program is free software; you can redistribute it
-  and/or modify it under the same terms as Perl itself.
+=head1 COPYRIGHT
+
+Copyright Mark Fowler 2004,2012.  All rights reserved.
+
+This program is free software; you can redistribute it
+and/or modify it under the same terms as Perl itself.
 
 =head1 BUGS
 
