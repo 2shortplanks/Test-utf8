@@ -1,7 +1,7 @@
 ---
 abstract: 'handy utf8 tests'
 author:
-  - 'Copyright Mark Fowler 2004.  All rights reserved.'
+  - 'Written by Mark Fowler B<mark@twoshortplanks.com>'
 build_requires:
   ExtUtils::MakeMaker: 6.42
   Test::Builder::Tester: 0.09
@@ -23,5 +23,7 @@ requires:
   Test::Builder: 0
   perl: 5.7.3
 resources:
+  homepage: http://github.com/2shortplanks/Test-utf8/tree
   license: http://dev.perl.org/licenses/
+  repository: git://github.com/2shortplanks/Test-utf8.git
 version: 1.00
