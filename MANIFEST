@@ -19,3 +19,8 @@ t/03deu.t
 t/04ascii.t
 t/05latin1.t
 t/06flag.t
+t/07valid_docu.t
+xt/001pod.t
+xt/002podcoverage.t
+xt/003perlcritic.t
+xt/anyperlperlcriticrc
