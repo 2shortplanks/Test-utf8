@@ -116,7 +116,7 @@ sub _invalid_sequence_at_byte($)
   my $string = shift;
 
   # examine the bytes that make up the string (not the chars)
-  # by turning off the utf8 flag (no, use bytes doens't
+  # by turning off the utf8 flag (no, use bytes doesn't
   # work, we're dealing with a regexp)
   Encode::_utf8_off($string);  ## no critic (ProtectPrivateSubs)
 
@@ -198,7 +198,7 @@ sub is_sane_utf8($;$)
     my $index = $+[0] - length($bytes);
     my $codes = join '', map { sprintf '<%00x>', ord($_) } split //, $bytes;
 
-    # what charecter does that represent?
+    # what character does that represent?
     my $char = Encode::decode("utf8",$bytes);
     my $ord  = ord($char);
     my $hex  = sprintf '%00x', $ord;
@@ -240,7 +240,7 @@ encoding:
 =item is_within_ascii
 
 Tests that a string only contains characters that are in the ASCII
-charecter set.
+character set.
 
 =cut
 
