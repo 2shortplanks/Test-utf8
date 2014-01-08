@@ -1,3 +1,6 @@
+1.01 Fix regexs to supress noisy warnings on 5.17
+     RT#88189, thanks frioux, https://github.com/2shortplanks/Test-utf8/pull/2
+
 1.00 Refactor build system to use Module::Install
 
      Add test for pod, perl critic.  Make pass.
