@@ -16,5 +16,7 @@ perl_version '5.007003';
 license 'perl';
 githubmeta;
 author_tests('xt');
+readme_from 'lib/Test/utf8.pm';
+
 
 WriteAll;
