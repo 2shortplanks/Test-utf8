@@ -190,7 +190,7 @@ sub is_sane_utf8($;$)
   # regexp in scalar context with 'g', meaning this loop will run for
   # each match.  Should only have to run it once, but will redo if
   # the failing case turns out to be allowed in %allowed.
-  while ($string =~ /($re_bit)/ox)
+  while ($string =~ /($re_bit)/o)
   {
     # work out what the double encoded string was
     my $bytes = $1;
@@ -250,7 +250,7 @@ sub is_within_ascii($;$)
   my $name   = shift || "within ascii";
 
   # look for anything that isn't ascii or pass
-  $string =~ /([^\x{00}-\x{7f}])/x or return _pass($name);
+  $string =~ /([^\x{00}-\x{7f}])/ or return _pass($name);
 
   # explain why we failed
   my $dec = ord($1);
@@ -274,7 +274,7 @@ sub is_within_latin_1($;$)
   my $name   = shift || "within latin-1";
 
   # look for anything that isn't ascii or pass
-  $string =~ /([^\x{00}-\x{ff}])/x or return _pass($name);
+  $string =~ /([^\x{00}-\x{ff}])/ or return _pass($name);
 
   # explain why we failed
   my $dec = ord($1);
