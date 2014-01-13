@@ -318,8 +318,8 @@ severity=5
 
 [RegularExpressions::RequireExtendedFormatting]
 # force people to use /.../x
-# ...seems like a good idea
-severity=4
+# nope, causes warnings on 5.18
+severity=1
 
 [RegularExpressions::RequireLineBoundaryMatching]
 # force people to use /.../m
