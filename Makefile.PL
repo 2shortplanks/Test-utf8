@@ -18,5 +18,6 @@ githubmeta;
 author_tests('xt');
 readme_from 'lib/Test/utf8.pm';
 
+repository 'https://github.com/2shortplanks/Test-utf8';
 
 WriteAll;
