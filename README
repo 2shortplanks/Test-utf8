@@ -103,7 +103,7 @@ DESCRIPTION
 
     is_within_ascii
         Tests that a string only contains characters that are in the ASCII
-        charecter set.
+        character set.
 
     is_within_latin_1
         Tests that a string only contains characters that are in latin-1.
