@@ -14,7 +14,8 @@ our $VERSION = "1.02";
 
 our @EXPORT = qw(
   is_valid_string is_dodgy_utf8 is_sane_utf8
-  is_within_ascii is_within_latin1 is_within_latin_1
+  is_within_ascii isnt_within_ascii
+  is_within_latin1 is_within_latin_1 isnt_within_latin1 isnt_within_latin_1
   is_flagged_utf8 isnt_flagged_utf8
 );
 
@@ -262,9 +263,41 @@ sub is_within_ascii($;$)
   return 0;
 }
 
+=item isnt_within_ascii
+
+Tests that a string contains at least one character that is not in
+the ASCII character set.
+
+Note: you can refer to this function as C<isn't_within_ascii> if you
+really want to.
+
+=cut
+
+sub isnt_within_ascii($;$)
+{
+  my $string = shift;
+  my $name   = shift || "not within ascii";
+
+  # look for anything that isn't ascii and pass
+  $string =~ /([^\x{00}-\x{7f}])/ and return _pass($name);
+
+  # explain why we failed
+  my $dec = join "-", map {ord} split //, $string;
+  my $hex = join "-", map {sprintf '%x', $_} split /-/, $dec;
+
+  _fail($name);
+  _diag("$string is all ASCII");
+  _note("(it's $dec dec / $hex hex)");
+
+  return 0;
+}
+
+sub isn::t_within_ascii { goto &isnt_within_ascii };
+
 =item is_within_latin_1
 
-Tests that a string only contains characters that are in latin-1.
+Tests that a string only contains characters that are in the
+latin-1 character set.
 
 =cut
 
@@ -273,7 +306,7 @@ sub is_within_latin_1($;$)
   my $string = shift;
   my $name   = shift || "within latin-1";
 
-  # look for anything that isn't ascii or pass
+  # look for anything that isn't latin-1 or pass
   $string =~ /([^\x{00}-\x{ff}])/ or return _pass($name);
 
   # explain why we failed
@@ -287,6 +320,39 @@ sub is_within_latin_1($;$)
 }
 
 sub is_within_latin1 { goto &is_within_latin_1 }
+
+=item isnt_within_latin_1
+
+Tests that a string contains at least one character that is not in
+the latin-1 character set.
+
+Note: you can refer to this function as C<isn't_within_latin_1> if
+you really want to.
+
+=cut
+
+sub isnt_within_latin_1($;$)
+{
+  my $string = shift;
+  my $name   = shift || "not within latin-1";
+
+  # look for anything that isn't latin-1 and pass
+  $string =~ /([^\x{00}-\x{ff}])/ and return _pass($name);
+
+  # explain why we failed
+  my $dec = join "-", map {ord} split //, $string;
+  my $hex = join "-", map {sprintf '%x', $_} split /-/, $dec;
+
+  _fail($name);
+  _diag("$string is all Latin-1");
+  _note("(it's $dec dec / $hex hex)");
+
+  return 0;
+}
+
+sub isnt_within_latin1    { goto &isnt_within_latin_1 }
+sub isn::t_within_latin_1 { goto &isnt_within_latin_1 }
+sub isn::t_within_latin1  { goto &isnt_within_latin_1 }
 
 =back
 
@@ -370,10 +436,18 @@ sub _ok
   local $Test::Builder::Level = $Test::Builder::Level + 1;
   return $tester->ok(@_)
 }
+
 sub _diag
 {
   local $Test::Builder::Level = $Test::Builder::Level + 1;
   $tester->diag(@_);
+  return;
+}
+
+sub _note
+{
+  local $Test::Builder::Level = $Test::Builder::Level + 1;
+  $tester->note(@_);
   return;
 }
 
