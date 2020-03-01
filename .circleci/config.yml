@@ -1,0 +1,16 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: cimg/base:2020.01
+    steps:
+      - checkout
+      - run:
+          name: "Run Makefile.PL"
+          command: "perl Makefile.PL"
+      - run:
+          name: "Run make"
+          command: "make"
+      - run:
+          name: "Run make test"
+          command: "make test"
