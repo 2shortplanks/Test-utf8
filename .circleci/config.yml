@@ -14,3 +14,29 @@ jobs:
       - run:
           name: "Run make test"
           command: "make test"
+  upload:
+    docker:
+      - image: cimg/base:2020.01
+    steps:
+      - checkout
+      - run:
+          name: "Run Makefile.PL"
+          command: "perl Makefile.PL"
+      - run:
+          name: "Run make"
+          command: "make"
+      - run:
+          name: "Run make test"
+          command: "make test"
+      - run:
+          name: "make the distribution"
+          command: "make dist"
+      - run:
+          name: "update apt repos"
+          command: "sudo apt-get update"
+      - run:
+          name: "install cpanuploader"
+          command: "sudo apt-get -yq install libcpan-uploader-perl"
+      - run:
+          name: "upload to pause"
+          command: "perl -e 'my ($file)=<*.tar.gz>; use CPAN::Uploader; CPAN::Uploader->new({user => $ENV{PAUSE_USERNAME}, password => $ENV{PAUSE_PASSWORD}})->upload_file($file)'"
