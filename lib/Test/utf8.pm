@@ -28,7 +28,7 @@ our $valid_utf8_regexp = <<'REGEX' ;
       | [\x{e1}-\x{ec}][\x{80}-\x{bf}][\x{80}-\x{bf}]
       |         \x{ed} [\x{80}-\x{9f}][\x{80}-\x{bf}]
       | [\x{ee}-\x{ef}][\x{80}-\x{bf}][\x{80}-\x{bf}]
-      |         \x{f0} [\x{90}-\x{bf}][\x{80}-\x{bf}]
+      |         \x{f0} [\x{90}-\x{bf}][\x{80}-\x{bf}][\x{80}-\x{bf}]
       | [\x{f1}-\x{f3}][\x{80}-\x{bf}][\x{80}-\x{bf}][\x{80}-\x{bf}]
       |         \x{f4} [\x{80}-\x{8f}][\x{80}-\x{bf}][\x{80}-\x{bf}]
 REGEX
