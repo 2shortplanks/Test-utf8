@@ -38,6 +38,15 @@ test_test("string with unicode only char");
 
 
 test_out("ok 1 - valid string test");
+my $valid = "\x{f0}\x{90}\x{80}\x{80}";
+Encode::_utf8_on($valid);
+is_valid_string($valid);
+test_test("string with Linear B Syllabary characters");
+
+
+
+
+test_out("ok 1 - valid string test");
 my $empty_string = "";
 Encode::_utf8_on($empty_string);
 is_valid_string($empty_string);
@@ -65,4 +74,8 @@ test_fail(+2);
 test_diag("malformed byte sequence starting at byte 0");
 is_valid_string($invalid);
 test_test("invalid string test starting with bad char");
+
+
+
+
 
